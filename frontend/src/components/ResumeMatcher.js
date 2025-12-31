@@ -14,7 +14,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 
-// ✅ API base URL from environment (CRA)
+
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function ResumeMatcher() {
@@ -85,12 +85,14 @@ export default function ResumeMatcher() {
 
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="#000"
-    >
+  display="flex"
+  justifyContent="center"
+  alignItems="center"
+  minHeight="100vh"
+  width="100vw"
+  sx={{ backgroundColor: "black" }}
+>
+
       <Box
         component="form"
         onSubmit={handleSubmit}
