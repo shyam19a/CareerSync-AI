@@ -15,3 +15,5 @@ pydantic
 PyPDF2
 
 python-multipart
+
+gradio
