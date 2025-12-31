@@ -1,0 +1,17 @@
+fastapi
+
+uvicorn
+
+python-dotenv
+
+pdfplumber
+
+python-docx
+
+sentence-transformers
+
+pydantic
+
+PyPDF2
+
+python-multipart
