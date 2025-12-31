@@ -11,8 +11,11 @@ import {
   DialogActions,
   IconButton,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
+
+// ✅ API base URL from environment (CRA)
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function ResumeMatcher() {
   const [resumeText, setResumeText] = useState("");
@@ -33,26 +36,31 @@ export default function ResumeMatcher() {
     try {
       const formData = new FormData();
 
-      // Add resume
+      // Resume
       if (resumeFile) formData.append("resume_file", resumeFile);
       else formData.append("resume_text", resumeText);
 
-      // Add job description
+      // Job description
       if (jobFile) formData.append("job_file", jobFile);
       else formData.append("job_description", jobText);
 
-      // POST to /match-file always
-      const { data } = await axios.post("http://127.0.0.1:8000/match-file", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await axios.post(
+        `${API_BASE_URL}/match-file`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setResults(data);
       setOpenDialog(true);
     } catch (err) {
       setError(
         err.response?.data?.error ||
-        err.response?.data?.detail ||
-        "An error occurred"
+          err.response?.data?.detail ||
+          "An error occurred"
       );
     }
 
@@ -72,20 +80,16 @@ export default function ResumeMatcher() {
     cursor: "pointer",
     border: "none",
     fontSize: "1em",
-    transition: "filter 0.3s, box-shadow 0.3s",
-    boxShadow: "0px 2px 18px 0px rgba(229,193,133,0.15)",
-    letterSpacing: 1.1,
-    outline: "none",
-    display: "inline-block",
+    boxShadow: "0px 2px 18px rgba(229,193,133,0.15)",
   };
 
   return (
     <Box
-      className="pro-bg"
       display="flex"
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
+      bgcolor="#000"
     >
       <Box
         component="form"
@@ -93,19 +97,10 @@ export default function ResumeMatcher() {
         sx={{
           width: 500,
           maxWidth: "95vw",
-          bgcolor: "black",
-          backdropFilter: "blur(12px)",
-          boxShadow: "0 8px 32px 0 rgba(227,193,104,0.22)",
+          bgcolor: "#000",
           borderRadius: 6,
           p: 4,
-          border: "2.7px solid",
-          borderImage: "linear-gradient(95deg, #e5c185 0%, #f7e0b6 100%) 1",
-          animation: "fadeInUp 0.85s",
-          transition: "box-shadow .25s, transform .22s",
-          "&:hover": {
-            boxShadow: "0 24px 85px 0 rgba(243,204,81,0.25), 0 3px 14px #ffe9bd29",
-            transform: "translateY(-7px) scale(1.013)",
-          },
+          border: "2px solid #e5c185",
         }}
       >
         <Typography
@@ -124,178 +119,113 @@ export default function ResumeMatcher() {
           AI Resume & Job Matcher
         </Typography>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ color: "#ffe09a", fontWeight: 600 }}>
-          Upload or Paste your Resume:
+        <Typography sx={{ color: "#ffe09a", fontWeight: 600 }}>
+          Upload or Paste Resume
         </Typography>
+
         <label style={prettyInputBtn}>
           <input
             type="file"
-            accept=".pdf,.docx,.doc"
+            accept=".pdf,.doc,.docx"
             style={fileInputStyle}
             onChange={(e) => {
               setResumeFile(e.target.files[0]);
-              if (e.target.files[0]) setResumeText(""); // clear pasted text
+              setResumeText("");
             }}
-            tabIndex={-1}
           />
-          Choose File
+          Choose Resume File
         </label>
-        <Typography
-          variant="body2"
-          sx={{ mb: 2, color: "#fff", fontStyle: resumeFile ? "normal" : "italic" }}
-        >
-          {resumeFile ? resumeFile.name : "No file chosen"}
-        </Typography>
 
         <TextField
           fullWidth
-          minRows={6}
-          label="Or paste resume text"
-          variant="outlined"
           multiline
+          minRows={5}
+          margin="normal"
+          label="Or paste resume text"
           value={resumeText}
+          disabled={resumeFile !== null}
           onChange={(e) => {
             setResumeText(e.target.value);
-            if (e.target.value) setResumeFile(null); // clear file if typing
+            setResumeFile(null);
           }}
-          disabled={resumeFile !== null}
-          margin="normal"
-          sx={{
-            borderRadius: 3,
-            background: "#231e17",
-            input: { color: "#fff" },
-            textarea: { color: "#fff" },
-          }}
-          InputLabelProps={{ style: { color: "#bc9a43" } }}
         />
 
-        <Typography variant="subtitle1" mt={3} gutterBottom sx={{ color: "#ffe09a", fontWeight: 600 }}>
-          Upload or Paste Job Description:
+        <Typography sx={{ color: "#ffe09a", fontWeight: 600, mt: 2 }}>
+          Upload or Paste Job Description
         </Typography>
+
         <label style={prettyInputBtn}>
           <input
             type="file"
-            accept=".pdf,.docx,.doc"
+            accept=".pdf,.doc,.docx"
             style={fileInputStyle}
             onChange={(e) => {
               setJobFile(e.target.files[0]);
-              if (e.target.files[0]) setJobText("");
+              setJobText("");
             }}
-            tabIndex={-1}
           />
-          Choose File
+          Choose Job File
         </label>
-        <Typography
-          variant="body2"
-          sx={{ mb: 2, color: "#fff", fontStyle: jobFile ? "normal" : "italic" }}
-        >
-          {jobFile ? jobFile.name : "No file chosen"}
-        </Typography>
 
         <TextField
           fullWidth
-          minRows={6}
-          label="Or paste job description"
-          variant="outlined"
           multiline
+          minRows={5}
+          margin="normal"
+          label="Or paste job description"
           value={jobText}
+          disabled={jobFile !== null}
           onChange={(e) => {
             setJobText(e.target.value);
-            if (e.target.value) setJobFile(null);
+            setJobFile(null);
           }}
-          disabled={jobFile !== null}
-          margin="normal"
-          sx={{
-            borderRadius: 3,
-            background: "#231e17",
-            input: { color: "#fff" },
-            textarea: { color: "#fff" },
-          }}
-          InputLabelProps={{ style: { color: "#bc9a43" } }}
         />
 
         <Button
           type="submit"
           variant="contained"
-          sx={{
-            mt: 3,
-            mb: 1,
-            fontSize: "1.14em",
-            fontWeight: "bold",
-            background: "linear-gradient(90deg,#e5c185 0%,#a67c31 100%)",
-            color: "#191715",
-            borderRadius: 30,
-            boxShadow: "0px 4.5px 28px 0px rgba(229,193,133,0.16)",
-            transition: "background 0.22s, box-shadow 0.22s",
-            "&:hover": {
-              background:
-                "linear-gradient(90deg,#fff0cc 5%,#f7e0b6 50%,#e5c185 100%)",
-              boxShadow: "0px 7px 38px 0px rgba(229,193,133,0.29),0px 3px 17px #f7e0b640",
-            },
-          }}
-          disabled={loading}
           fullWidth
+          sx={{ mt: 3 }}
+          disabled={loading}
         >
-          {loading ? <CircularProgress size={23} sx={{ color: "#e5c185" }} /> : "ANALYZE"}
+          {loading ? <CircularProgress size={24} /> : "ANALYZE"}
         </Button>
 
         {error && (
-          <Typography color="error" sx={{ mt: 3, fontWeight: "bold" }}>
+          <Typography color="error" sx={{ mt: 2 }}>
             {error}
           </Typography>
         )}
 
-        <Dialog 
-          open={openDialog} 
-          onClose={handleClose} 
-          maxWidth="sm" 
-          fullWidth 
-          PaperProps={{ sx: { backgroundColor: "#000", color: "#fff" } }}
-        >
-          <DialogTitle sx={{ color: "#e5c185" }}>
+        <Dialog open={openDialog} onClose={handleClose} fullWidth maxWidth="sm">
+          <DialogTitle>
             Analysis Results
             <IconButton
-              aria-label="close"
               onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: "#e5c185",
-              }}
+              sx={{ position: "absolute", right: 8, top: 8 }}
             >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
-            <Typography variant="h6" gutterBottom sx={{ color: "#fff" }}>
-              Similarity Score: {results?.similarity_score}%
+            <Typography>
+              Similarity Score: {results?.similarity_score}
             </Typography>
-            <Typography variant="subtitle1" mt={2} sx={{ color: "#fff" }}>
-              Your Skills Detected:
+
+            <Typography mt={2}>Missing Skills:</Typography>
+            <Typography>
+              {results?.missing_skills?.join(", ") || "None"}
             </Typography>
-            <Typography sx={{ color: "#ddd" }}>{results?.extracted_resume_skills.join(", ") || "None"}</Typography>
-            <Typography variant="subtitle1" mt={2} sx={{ color: "#fff" }}>
-              Job Requires:
-            </Typography>
-            <Typography sx={{ color: "#ddd" }}>{results?.extracted_job_skills.join(", ") || "None"}</Typography>
-            <Typography variant="subtitle1" mt={2} sx={{ color: "#fff" }}>
-              Missing Skills:
-            </Typography>
-            <Typography sx={{ color: "#ddd" }}>{results?.missing_skills.join(", ") || "None"}</Typography>
-            <Typography variant="subtitle1" mt={2} sx={{ color: "#fff" }}>
-              Suggestions:
-            </Typography>
+
+            <Typography mt={2}>Suggestions:</Typography>
             <ul>
               {results?.suggestions?.map((s, i) => (
-                <li key={i} style={{ color: "#ddd" }}>{s}</li>
+                <li key={i}>{s}</li>
               ))}
             </ul>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} sx={{color: "#e5c185"}}>
-              Close
-            </Button>
+            <Button onClick={handleClose}>Close</Button>
           </DialogActions>
         </Dialog>
       </Box>
