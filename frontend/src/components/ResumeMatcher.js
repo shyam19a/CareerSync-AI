@@ -35,20 +35,16 @@ export default function ResumeMatcher() {
     try {
       const formData = new FormData();
 
-      // Resume
       if (resumeFile) formData.append("resume_file", resumeFile);
       else formData.append("resume_text", resumeText);
 
-      // Job description
       if (jobFile) formData.append("job_file", jobFile);
       else formData.append("job_description", jobText);
 
       const { data } = await axios.post(
         `${API_BASE_URL}/match-file`,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       setResults(data);
@@ -57,7 +53,7 @@ export default function ResumeMatcher() {
       setError(
         err.response?.data?.error ||
           err.response?.data?.detail ||
-          "An error occurred"
+          "Something went wrong"
       );
     }
 
@@ -67,6 +63,7 @@ export default function ResumeMatcher() {
   const handleClose = () => setOpenDialog(false);
 
   const fileInputStyle = { display: "none" };
+
   const prettyInputBtn = {
     marginBottom: "0.5em",
     background: "linear-gradient(90deg,#e5c185 0%, #f7e0b6 100%)",
@@ -100,6 +97,7 @@ export default function ResumeMatcher() {
           borderRadius: 6,
           p: 4,
           border: "2px solid #e5c185",
+          boxShadow: "0 0 40px rgba(229,193,133,0.2)",
         }}
       >
         <Typography
@@ -118,7 +116,7 @@ export default function ResumeMatcher() {
           AI Resume & Job Matcher
         </Typography>
 
-        {/* RESUME */}
+        {/* Resume */}
         <Typography sx={{ color: "#ffe09a", fontWeight: 600 }}>
           Upload or Paste Resume
         </Typography>
@@ -129,11 +127,8 @@ export default function ResumeMatcher() {
             accept=".pdf,.doc,.docx"
             style={fileInputStyle}
             onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setResumeFile(file);
-                setResumeText("");
-              }
+              setResumeFile(e.target.files[0]);
+              setResumeText("");
             }}
           />
           Choose Resume File
@@ -144,30 +139,31 @@ export default function ResumeMatcher() {
             mb: 2,
             color: resumeFile ? "#e5c185" : "#aaa",
             fontWeight: resumeFile ? "bold" : "normal",
-            fontStyle: resumeFile ? "normal" : "italic",
           }}
         >
-          {resumeFile ? resumeFile.name : "No resume file selected"}
+          {resumeFile ? resumeFile.name : "No file selected"}
         </Typography>
 
         <TextField
           fullWidth
           multiline
           minRows={5}
-          margin="normal"
           label="Or paste resume text"
           value={resumeText}
+          disabled={resumeFile !== null}
           onChange={(e) => {
-            const text = e.target.value;
-            setResumeText(text);
-            if (text.trim().length > 0) {
-              setResumeFile(null);
-            }
+            setResumeText(e.target.value);
+            if (e.target.value) setResumeFile(null);
+          }}
+          sx={{
+            background: "#111",
+            textarea: { color: "#fff" },
+            label: { color: "#bc9a43" },
           }}
         />
 
-        {/* JOB DESCRIPTION */}
-        <Typography sx={{ color: "#ffe09a", fontWeight: 600, mt: 2 }}>
+        {/* Job */}
+        <Typography sx={{ color: "#ffe09a", fontWeight: 600, mt: 3 }}>
           Upload or Paste Job Description
         </Typography>
 
@@ -177,11 +173,8 @@ export default function ResumeMatcher() {
             accept=".pdf,.doc,.docx"
             style={fileInputStyle}
             onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setJobFile(file);
-                setJobText("");
-              }
+              setJobFile(e.target.files[0]);
+              setJobText("");
             }}
           />
           Choose Job File
@@ -192,25 +185,26 @@ export default function ResumeMatcher() {
             mb: 2,
             color: jobFile ? "#e5c185" : "#aaa",
             fontWeight: jobFile ? "bold" : "normal",
-            fontStyle: jobFile ? "normal" : "italic",
           }}
         >
-          {jobFile ? jobFile.name : "No job file selected"}
+          {jobFile ? jobFile.name : "No file selected"}
         </Typography>
 
         <TextField
           fullWidth
           multiline
           minRows={5}
-          margin="normal"
           label="Or paste job description"
           value={jobText}
+          disabled={jobFile !== null}
           onChange={(e) => {
-            const text = e.target.value;
-            setJobText(text);
-            if (text.trim().length > 0) {
-              setJobFile(null);
-            }
+            setJobText(e.target.value);
+            if (e.target.value) setJobFile(null);
+          }}
+          sx={{
+            background: "#111",
+            textarea: { color: "#fff" },
+            label: { color: "#bc9a43" },
           }}
         />
 
@@ -218,7 +212,7 @@ export default function ResumeMatcher() {
           type="submit"
           variant="contained"
           fullWidth
-          sx={{ mt: 3 }}
+          sx={{ mt: 3, fontWeight: "bold" }}
           disabled={loading}
         >
           {loading ? <CircularProgress size={24} /> : "ANALYZE"}
@@ -230,18 +224,40 @@ export default function ResumeMatcher() {
           </Typography>
         )}
 
-        <Dialog open={openDialog} onClose={handleClose} fullWidth maxWidth="sm">
-          <DialogTitle>
+        {/* Results Dialog */}
+        <Dialog
+          open={openDialog}
+          onClose={handleClose}
+          fullWidth
+          maxWidth="sm"
+          PaperProps={{
+            sx: {
+              backgroundColor: "#000",
+              color: "#fff",
+              border: "2px solid #e5c185",
+              borderRadius: 4,
+            },
+          }}
+        >
+          <DialogTitle sx={{ color: "#e5c185", fontWeight: "bold" }}>
             Analysis Results
             <IconButton
               onClick={handleClose}
-              sx={{ position: "absolute", right: 8, top: 8 }}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: "#e5c185",
+              }}
             >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
 
-          <DialogContent dividers>
+          <DialogContent
+            dividers
+            sx={{ backgroundColor: "#000", color: "#fff" }}
+          >
             <Typography>
               Similarity Score: {results?.similarity_score}
             </Typography>
@@ -260,7 +276,12 @@ export default function ResumeMatcher() {
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleClose}>Close</Button>
+            <Button
+              onClick={handleClose}
+              sx={{ color: "#e5c185", fontWeight: "bold" }}
+            >
+              Close
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>
