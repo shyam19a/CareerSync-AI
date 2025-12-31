@@ -14,7 +14,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 
-
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function ResumeMatcher() {
@@ -48,9 +47,7 @@ export default function ResumeMatcher() {
         `${API_BASE_URL}/match-file`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
@@ -81,18 +78,18 @@ export default function ResumeMatcher() {
     border: "none",
     fontSize: "1em",
     boxShadow: "0px 2px 18px rgba(229,193,133,0.15)",
+    display: "inline-block",
   };
 
   return (
     <Box
-  display="flex"
-  justifyContent="center"
-  alignItems="center"
-  minHeight="100vh"
-  width="100vw"
-  sx={{ backgroundColor: "black" }}
->
-
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      width="100vw"
+      sx={{ backgroundColor: "black" }}
+    >
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -121,6 +118,7 @@ export default function ResumeMatcher() {
           AI Resume & Job Matcher
         </Typography>
 
+        {/* RESUME */}
         <Typography sx={{ color: "#ffe09a", fontWeight: 600 }}>
           Upload or Paste Resume
         </Typography>
@@ -131,12 +129,26 @@ export default function ResumeMatcher() {
             accept=".pdf,.doc,.docx"
             style={fileInputStyle}
             onChange={(e) => {
-              setResumeFile(e.target.files[0]);
-              setResumeText("");
+              const file = e.target.files[0];
+              if (file) {
+                setResumeFile(file);
+                setResumeText("");
+              }
             }}
           />
           Choose Resume File
         </label>
+
+        <Typography
+          sx={{
+            mb: 2,
+            color: resumeFile ? "#e5c185" : "#aaa",
+            fontWeight: resumeFile ? "bold" : "normal",
+            fontStyle: resumeFile ? "normal" : "italic",
+          }}
+        >
+          {resumeFile ? resumeFile.name : "No resume file selected"}
+        </Typography>
 
         <TextField
           fullWidth
@@ -145,13 +157,16 @@ export default function ResumeMatcher() {
           margin="normal"
           label="Or paste resume text"
           value={resumeText}
-          disabled={resumeFile !== null}
           onChange={(e) => {
-            setResumeText(e.target.value);
-            setResumeFile(null);
+            const text = e.target.value;
+            setResumeText(text);
+            if (text.trim().length > 0) {
+              setResumeFile(null);
+            }
           }}
         />
 
+        {/* JOB DESCRIPTION */}
         <Typography sx={{ color: "#ffe09a", fontWeight: 600, mt: 2 }}>
           Upload or Paste Job Description
         </Typography>
@@ -162,12 +177,26 @@ export default function ResumeMatcher() {
             accept=".pdf,.doc,.docx"
             style={fileInputStyle}
             onChange={(e) => {
-              setJobFile(e.target.files[0]);
-              setJobText("");
+              const file = e.target.files[0];
+              if (file) {
+                setJobFile(file);
+                setJobText("");
+              }
             }}
           />
           Choose Job File
         </label>
+
+        <Typography
+          sx={{
+            mb: 2,
+            color: jobFile ? "#e5c185" : "#aaa",
+            fontWeight: jobFile ? "bold" : "normal",
+            fontStyle: jobFile ? "normal" : "italic",
+          }}
+        >
+          {jobFile ? jobFile.name : "No job file selected"}
+        </Typography>
 
         <TextField
           fullWidth
@@ -176,10 +205,12 @@ export default function ResumeMatcher() {
           margin="normal"
           label="Or paste job description"
           value={jobText}
-          disabled={jobFile !== null}
           onChange={(e) => {
-            setJobText(e.target.value);
-            setJobFile(null);
+            const text = e.target.value;
+            setJobText(text);
+            if (text.trim().length > 0) {
+              setJobFile(null);
+            }
           }}
         />
 
@@ -209,6 +240,7 @@ export default function ResumeMatcher() {
               <CloseIcon />
             </IconButton>
           </DialogTitle>
+
           <DialogContent dividers>
             <Typography>
               Similarity Score: {results?.similarity_score}
@@ -226,6 +258,7 @@ export default function ResumeMatcher() {
               ))}
             </ul>
           </DialogContent>
+
           <DialogActions>
             <Button onClick={handleClose}>Close</Button>
           </DialogActions>
